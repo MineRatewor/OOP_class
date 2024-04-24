@@ -3,224 +3,334 @@
 #include<iomanip>
 using namespace std;
 
-template<typename T>
-class List {
+class Text {
 private:
+	char* arr;
+	int s;
+	int c;
 
-	class Node {
-	public:
-		T data;
-		Node* next;
-		Node* prev;
-
-		Node(T data, Node* next = NULL, Node* prev = NULL) {
-			this->data = data;
-			this->next = next;
-			this->prev = prev;
-		}
-	};
-	Node* head, * tail;
-	int size;
 public:
-	List();
-	//конструктор копирования
-	List(const List<T>& l);
-	List& operator=(const List& l) {
-		if (this != &l) {
-			head = nullptr;
-			Node* current = l.head;
-			while (current != nullptr) {
-				push_back(current->data);
-				current = current->next;
-			}
-		}
-		return *this;
-	}
-	//конструктор перемещения
-	List(List&& l);
-	List& operator=(List&& l) {
-		if (this != &l) {
-			head = nullptr;
-			Node* current = l.head;
-			while (current != nullptr) {
-				push_back(current->data);
-				current = current->next;
-			}
-		}
-		l.clear();
-		return *this;
-	}
-	void push_front(T data);
-	void push_back(T data);
-	void insert(T data, int index);
-	void print();
-	int getSize() { return size; }
-	void pop_front();
-	void find(int index);
-	void pop_back();
+	Text();
+	Text(int num);
+	void new_allocation();
+	void add(char);
 	void pop(int index);
+	void pop_back();
+	void join(Text&);
+	void insert(char, int index);
+	void intersection(Text&);
+	int size();
+	void difference(Text&);
 	void clear();
-	T& operator[](const int index);
-
-	~List();
-
-};
-template<typename T>
-List<T>::List() {
-	head = NULL;
-	size = 0;
-}
-// конструктор копирования 
-template<typename T>
-List<T>::List(const List<T>& l) {
-	head = nullptr;
-	Node* current = l.head;
-	while (current != NULL) {
-		push_back(current->data);
-		current = current->next;
-	}
-
-}
-//конструктор перемещения
-template<typename T>
-List<T>::List(List&& l) {
-	head = nullptr;
-	Node* current = l.head;
-	while (current != NULL) {
-		push_back(current->data);
-		current = current->next;
-	}
-	l.clear();
-}
-
-template<typename T>
-void List<T>::push_front(T data) {
-	Node* ptr = new Node(data);
-	ptr->next = head;
-
-	if (head != NULL) {
-		head->prev = ptr;
-	}
-	if (tail == NULL) {
-		tail = ptr;
-	}
-	head = ptr;
-	size++;
-}
-template<typename T>
-void List<T>::push_back(T data) {
-	Node* ptr = new Node(data);
-
-	ptr->prev = tail;
-	if (tail != NULL) {
-		tail->next = ptr;
-	}
-	if (head == NULL) {
-		head = ptr;
-	}
-	tail = ptr;
-	size++;
-}
-template<typename T>
-T& List<T>::operator[](const int index)
-{
-	if (index < 0 or index >= size and index != 0) {
-		cout << "Index out of range!";
-
-	}
-	int count = 0;
-	Node* current = this->head;
-	while (current != NULL) {
-		if (count == index) {
-			return current->data;
+	void print();
+	char& operator=(Text&);
+	Text& operator+(Text&);
+	Text& operator-(Text&);
+	Text& operator*(Text&);
+	char& operator*=(Text&);
+	char& operator+=(Text&);
+	char& operator-=(Text&);
+	char& operator+=(const char&);
+	char& operator-=(const char&);
+	char& operator[](int index) {
+		if (index < 0 or index > s) {
+			cout << "Index out of range!";
 		}
-		current = current->next;
-		count++;
+		return arr[index];
+	}
+	friend istream& operator >>(istream& fin, Text& arr2) {
+		for (int i = 0; i < arr2.s; i++) {
+			fin >> arr2.arr[i];
+		}
+		return fin;
+	}
+	friend ostream& operator <<(ostream& fout, const Text& arr2) {
+		for (int i = 0; i < arr2.s; i++) {
+			fout << arr2.arr[i];
+		}
+		return fout;
+	}
+	Text(const Text& arr);
+	Text& operator=(const Text&);
+	Text(Text&& arr);
+	Text& operator=(Text&&);
+	~Text();
+};
+
+Text::Text()
+{
+	s = c = 0;
+}
+Text::Text(int num)
+{
+	s = c = num;
+}
+void Text::new_allocation()
+{
+	c = s + 5;
+	char* temp = new char[c]();
+
+	for (int i = 0; i < s; i++) {
+		temp[i] = arr[i];
+	}
+	delete[] arr;
+	arr = temp;
+
+}
+void Text::add(char str)
+{
+	if (s == c) {
+		new_allocation();
 	}
 
+	arr[s] = str;
+	s++;
 }
-template<typename T>
-void List<T>::pop_front() {
-	Node* tmp = this->head;
 
-	head = head->next;
-
-	delete[] tmp;
-	size--;
-}
-template<typename T>
-void List<T>::find(int index)
+void Text::pop(int index)
 {
-	Node* current = this->head;
-	for (int i = 0; i < index; i++) {
-		current = current->next;
-	}
-	cout << current->data;
-}
-template<typename T>
-void List<T>::pop_back() {
-	Node* tmp = this->tail;
-	tail = tail->prev;
-	tail->next = NULL;
-	delete[] tmp;
-	size--;
-
-}
-
-template<typename T>
-void List<T>::pop(int index)
-{
-	if (index >= size or index < 0) {
-		cout << "Index out of range!";
+	if (s == 0) {
+		cout << "Can't pop, because vector is empty!" << endl;
 		return;
 	}
-	if (index == 0) {
-		pop_front();
-	}
-	else {
-		Node* current = this->head;
-		for (int i = 0; i < index - 1; i++) {
-			current = current->next;
+	s--;
+	char* temp1 = new char[s];
+	int k = 0;
+	for (int i = 0; i < s; i++) {
+		if (index == i) {
+			k++;
 		}
-		Node* tmp = current->next;
-		current->next = tmp->next;
-		delete[]tmp;
+		temp1[i] = arr[k];
+		k++;
 	}
-	size--;
+	delete[] arr;
+	arr = temp1;
 
 }
 
-template<typename T>
-void List<T>::insert(T data, int index)
+void Text::pop_back()
 {
-	Node* current = this->head;
-
-	for (int i = 0; i < index - 1; i++) {
-		current = current->next;
+	if (s == 0) {
+		cout << "Can't pop, because vector is empty!" << endl;
+		return;
 	}
-	Node* ptr = new Node(data, current->next, current);
-
-	current->next = ptr;
-	size++;
+	s--;
 }
 
-template<typename T>
-void List<T>::print() {
-	Node* current = this->head;
-	while (current != NULL) {
-		cout << setw(3) << current->data;
-		current = current->next;
-	}
-}
-template<typename T>
-void List<T>::clear() {
-	while (size) {
-		pop_front();
+void Text::join(Text& arr2)
+{
+	for (int i = 0; i < arr2.s; i++) {
+		add(arr2[i]);
 	}
 }
 
-template<typename T>
-List<T>::~List() {
-	clear();
+inline void Text::insert(char str, int index)
+{
+	if (index < 0 or index > s) {
+		cout << "Index is out of range!" << endl;
+		return;
+	}
+	arr[index] = str;
+}
 
+void Text::intersection(Text& arr1)
+{
+	for (int i = 0; i < s; i++) {
+		int count = 0;
+		for (int j = 0; j < arr1.s; j++) {
+			if (arr[i] == arr1[j]) {
+				count++;
+			}
+		}
+		if (count == 0) {
+			pop(i); i--;
+		}
+	}
+
+}
+
+int Text::size()
+{
+	return s;
+}
+
+void Text::difference(Text& arr2)
+{
+	for (int i = 0; i < s; i++) {
+		for (int j = 0; j < arr2.s; j++) {
+			if (arr[i] == arr2[j]) {
+				pop(i);
+				i--;
+			}
+		}
+	}
+}
+
+void Text::clear()
+{
+	s = c = 0;
+	delete[] arr;
+	arr = nullptr;
+}
+
+void Text::print()
+{
+	for (int i = 0; i < s; i++) {
+		cout << setw(3) << arr[i];
+	}
+	cout << endl;
+}
+
+
+
+inline char& Text::operator+=(Text&arr2)
+{
+	for (int i = 0; i < arr2.s; i++) {
+		add(arr2[i]);
+	}
+
+	return *arr;
+}
+
+inline char& Text::operator=(Text& arr2) {
+	
+	
+	if (this != &arr2) {
+		s = arr2.s;
+		c = arr2.c;
+		char* tmp = new char[s];
+		for (int i = 0; i < s; i++) {
+			tmp[i] = arr2.arr[i];
+		}
+		delete[] arr;
+		arr = tmp;
+
+	}
+	return *arr;
+}
+inline Text& Text::operator+(Text&arr2)
+{
+	for (int i = 0; i < arr2.s; i++) {
+		add(arr2[i]);
+	}
+	return *this;
+}
+inline Text& Text::operator-(Text&arr1)
+{
+	difference(arr1);
+	return *this;
+}
+inline Text& Text::operator*(Text&arr2)
+{
+	intersection(arr2);
+	return *this;
+}
+inline char& Text::operator*=(Text& arr2)
+{
+	intersection(arr2);
+	return *arr;
+}
+inline char& Text::operator-=(Text&arr2)
+{
+	for (int i = 0; i < s; i++) {
+		for (int j = 0; j < arr2.s; j++) {
+			if (arr[i] == arr2[j]) {
+				pop(i);
+				i--;
+			}
+		}
+	}
+	return *arr;
+}
+
+inline char& Text::operator+=(const char& s)
+{
+	add(s);
+	return *arr;
+}
+
+inline char& Text::operator-=(const char& str)
+{
+	for (int i = 0; i < s; i++) {
+		if (arr[i] == str) {
+			pop(i);
+			break;
+		}
+	}
+	return *arr;
+}
+
+Text::Text(const Text& arr2)
+{
+	if (this != &arr2) {
+		s = arr2.s;
+		c = arr2.c;
+		char* tmp = new char[s];
+		for (int i = 0; i < s; i++) {
+			tmp[i] = arr2.arr[i];
+		}
+		delete[] arr;
+		arr = tmp;
+
+
+	}
+
+}
+
+Text& Text::operator=(const Text& arr2)
+{
+	if (this != &arr2) {
+		s = arr2.s;
+		c = arr2.c;
+		char* tmp = new char[s];
+		for (int i = 0; i < s; i++) {
+			tmp[i] = arr2.arr[i];
+		}
+		delete[] arr;
+		arr = tmp;
+
+
+	}
+	return *this;
+}
+
+
+
+Text::Text(Text&& arr2)
+{
+
+	s = arr2.s;
+	c = arr2.c;
+	char* tmp = new char[s];
+	for (int i = 0; i < s; i++) {
+		tmp[i] = arr2.arr[i];
+	}
+	delete[] arr;
+	arr = tmp;
+
+	arr2.s = 0;
+	arr2.c = 0;
+
+}
+
+Text& Text::operator=(Text&& arr2)
+{
+	if (this != &arr2) {
+		s = arr2.s;
+		c = arr2.c;
+		char* tmp = new char[s];
+		for (int i = 0; i < s; i++) {
+			tmp[i] = arr2.arr[i];
+		}
+		delete[] arr;
+		arr = tmp;
+		arr2.s = 0;
+		arr2.c = 0;
+
+	}
+	return *this;
+}
+Text::~Text()
+{
+	delete[]arr;
 }
