@@ -42,7 +42,7 @@ public:
 	   s.name = nullptr;
       }
 
-    Exhibit& operator=(Exhibit&& s) {
+    virtual Exhibit& operator=(Exhibit&& s) {
 	char* temp = new char[strlen(s.name) + 1] {};
 	for (int i = 0; i < strlen(s.name); i++) {
 		temp[i] = s.name[i];
